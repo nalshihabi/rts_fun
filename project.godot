@@ -19,6 +19,11 @@ config/name="Armies"
 run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
+[display]
+
+window/size/fullscreen=true
+window/stretch/mode="viewport"
+
 [input]
 
 ui_click={
