@@ -2,6 +2,8 @@ extends KinematicBody2D
 
 signal new_click(item)
 
+var lazer := load("res://lazer.tscn")
+
 const SPEED = 50
 const STOP_RADIUS = 10
 
@@ -10,9 +12,9 @@ const STATE_MOVE = 1
 const STATE_ATTACK = 2
 const STATE_ATTACK_MOVE = 3
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
+const ATTACK_WAIT = 60
+const MAX_ATTACK_TIMER = 5000
+
 var dir = 0
 var selected = false
 var current_location = Vector2(0, 0)
@@ -23,6 +25,9 @@ var progress_visible = false
 var attack_range = 100
 var state = STATE_IDLE
 var nav = null
+var attack_timer = 0
+var health = 0.0
+var max_health = 100.0
 
 func toggle_progress_visible():
 	if progress_visible:
@@ -39,66 +44,88 @@ func click():
 func unclick():
 	toggle_progress_visible()
 
-func calc_speed(delta, other_position):
+func calc_speed(delta: float, other_position: Vector2) -> Vector2:
 	var vec = other_position - self.position
 	return vec.normalized() * delta * SPEED
 
-func attack(target):
-	print("I am attacking!")
+func increment_attack_timer() -> void:
+	if self.attack_timer > MAX_ATTACK_TIMER:
+		self.attack_timer = ATTACK_WAIT
+
+	self.attack_timer += 1
+
+func fire_lazer(targ_loc: Vector2) -> void:
+	print(lazer)
+	var new_lazer = lazer.instance()
+	$"..".add_child(new_lazer)
+	new_lazer.init(self, targ_loc)
 	pass
+
+func attack(targ_loc: Vector2) -> void:
+	if self.attack_timer >= ATTACK_WAIT:
+		fire_lazer(targ_loc)
+		self.attack_timer = 0
 
 func reset_state():
 	self.state = STATE_IDLE
 
 func draw_path(path: PoolVector2Array):
-	# path = [i - self.global_position for i in path]
 	var dpath = []
 	for i in path:
 		dpath.append(i - self.position)
 	
 	$Line2D.points = dpath
 
-func move_attack(delta, target):
-	if self.position.distance_to(target.position) < attack_range:
-		state = STATE_ATTACK
-		attack(target)
+func move_attack(delta: float, cur_target: Object) -> void:
+	if self.position.distance_to(cur_target.position) < attack_range:
+		self.state = STATE_ATTACK
+		attack(cur_target.position)
 	else:
-		# print("hello?????")
-		state = STATE_ATTACK_MOVE
-		var path = self.nav.get_simple_path(self.position, target.position)
-		# $Line2D.points = path
+		self.state = STATE_ATTACK_MOVE
+		var path = self.nav.get_simple_path(self.position, cur_target.position)
 		self.draw_path(path)
-		# self.move_and_collide(calc_speed(delta, target.position))
-		self.move_and_collide(calc_speed(delta, path[0]))
+		var _collision := self.move_and_collide(calc_speed(delta, path[1]))
 
-func set_attack(target, target_location, nav):
-	print("in set attack")
-	self.target_location = target_location
-	self.target = target
-	self.nav = nav
+func set_attack(new_target: Object, new_target_location: Vector2, new_nav: Object) -> void:
+	self.target_location = new_target_location
+	self.target = new_target
+	self.nav = new_nav
 	self.state = STATE_ATTACK_MOVE
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	target_location = self.position
-	pass # Replace with function body.
+func receive_attack(damage: float) -> void:
+	self.lower_health(damage)
 
-func _physics_process(delta):
+func increase_health(amount: float) -> void:
+	set_health(self.health + amount)
+
+func lower_health(amount: float) -> void:
+	set_health(self.health - amount)
+
+func set_health(new_health: float) -> void:
+	self.health = new_health
+	if self.health != self.max_health:
+		$ProgressBar.visible = true
+	$ProgressBar.value = self.health
+	if self.health < 0.0:
+		queue_free()
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	target_location = self.position
+	self.set_health(self.max_health)
+
+func _physics_process(delta: float) -> void:
+	increment_attack_timer()
+	
 	if self.position.distance_to(target_location) > STOP_RADIUS and (state == STATE_IDLE or state == STATE_MOVE):
 		state = STATE_MOVE
-	# if self.position != target_location:
-		# var vec = target_location - self.position
-		var path = self.nav.get_simple_path(self.position, target_location)
-		# $Line2D.points = path
+		var path: PoolVector2Array = self.nav.get_simple_path(self.position, target_location)
 		self.draw_path(path)
-		self.move_and_collide(calc_speed(delta, target_location))
+		var _collision := self.move_and_collide(calc_speed(delta, target_location))
 	elif self.state == STATE_ATTACK or self.state == STATE_ATTACK_MOVE:
-		# print("in physics process")
-		move_attack(delta, target)
+		if target:
+			move_attack(delta, target)
+		else:
+			state = STATE_IDLE
 	elif self.state != STATE_ATTACK and self.state != STATE_ATTACK_MOVE:
 		state = STATE_IDLE
-		
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass

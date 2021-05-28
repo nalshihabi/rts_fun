@@ -19,11 +19,13 @@ var cam_vec: Vector2 = Vector2.ZERO
 
 func refresh_selected():
 	for item in previous:
-		item.collider.unclick()
+		if item:
+			item.collider.unclick()
 
 	previous = selected
 	for item in previous:
-		item.collider.click()
+		if item:
+			item.collider.click()
 
 func within_edge_border_horizontal(position: Vector2) -> bool:
 	return position.x < EDGE_RANGE or position.x > wh.x - EDGE_RANGE

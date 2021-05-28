@@ -1,6 +1,6 @@
 # TODO
 
-- [x] Attacking logic
+- [] Attacking logic
 - [x] Pathing
   - [] Better movement overall
   - [x] Handle for global position more
@@ -15,7 +15,9 @@
 - [] More abilities/Extra view
 - [] Progress abilities
   - ie creating new troops/upgrading/researching
-- [] Combat 
+- [] Combat
+  - [] Health
+  - [] Death/Destruction
 - [] Main menu
 - [] Networking for multiplayer
 - [] AI
