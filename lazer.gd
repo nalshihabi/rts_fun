@@ -1,6 +1,6 @@
 extends KinematicBody2D
 
-const SPEED = 100
+const SPEED = 200
 const RANGE = 500
 const ATTACK_DAMAGE = 10
 
