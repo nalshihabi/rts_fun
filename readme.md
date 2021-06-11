@@ -2,6 +2,7 @@
 
 - [x] Pathing
   - [] Better movement overall
+    - [] Try out the Path2D stuff more
   - [x] Handle for global position more
 - [x] Camera logic
   - [] Make better at some point

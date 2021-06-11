@@ -8,9 +8,20 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "Reference",
+"class": "ACTIONS",
+"language": "GDScript",
+"path": "res://game_actions.gd"
+}, {
+"base": "KinematicBody2D",
+"class": "GameObject",
+"language": "GDScript",
+"path": "res://GameObject.gd"
+} ]
 _global_script_class_icons={
-
+"ACTIONS": "",
+"GameObject": ""
 }
 
 [application]

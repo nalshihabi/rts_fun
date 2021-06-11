@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends GameObject
 
 const SPEED = 200
 const RANGE = 500
@@ -20,6 +20,7 @@ func init(new_par: KinematicBody2D, target: Vector2 = Vector2(0, 0)) -> void:
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	self.object_type = "LAZER"
 	starting_position = self.position
 
 func _on_body_entered(body):

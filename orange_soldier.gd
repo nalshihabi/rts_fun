@@ -1,8 +1,10 @@
-extends KinematicBody2D
+extends GameObject
 
 signal new_click(item)
 
 var lazer := load("res://lazer.tscn")
+
+# var a = resource
 
 const SPEED = 50
 const STOP_RADIUS = 10
@@ -75,6 +77,7 @@ func draw_path(path: PoolVector2Array):
 		dpath.append(i - self.position)
 	
 	$Line2D.points = dpath
+	# draw_polyline(path, Color.green)
 
 func move_attack(delta: float, cur_target: Object) -> void:
 	if self.position.distance_to(cur_target.position) < attack_range:
@@ -111,6 +114,7 @@ func set_health(new_health: float) -> void:
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	self.object_type = "ORANGE_SOLDIER"
 	target_location = self.position
 	self.set_health(self.max_health)
 
