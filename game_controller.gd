@@ -26,6 +26,7 @@ class Item:
 
 func parse_item(item: Object) -> Item:
 	if !item.is_class("GameObject"):
+	# if !item.is_class(GameObject.object_type):
 		return null
 
 	return Item.new(item)
